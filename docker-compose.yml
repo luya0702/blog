@@ -1,0 +1,40 @@
+version: '6.8'
+
+services:
+    mysql:
+      image: mysql:8.0
+      container_name: mysql
+      restart: unless-stopped
+      environment:
+        MYSQL_ROOT_PASSWORD: 0000
+        MYSQL_DATABASE: wordpress
+        MYSQL_USER: luya
+        MYSQL_PASSWORD: 0000
+      volumes:
+        - ./mysql:/var/lib/mysql
+
+    wordpress:
+      image: wordpress
+      container_name: wordpress
+      depends_on:
+        - mysql
+      restart: unless-stopped
+      environment:
+        WORDPRESS_DB_HOST: db:3306
+        WORDPRESS_DB_USER: luya
+        WORDPRESS_DB_PASSWORD: 0000
+        WORDPRESS_DB_NAME: wordpress
+      volumes:
+        - ./wordpress:/var/www/html
+
+    nginx:
+      image: nginx
+      container_name: nginx
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes:
+        - ./nginx/conf.d:/etc/nginx/conf.d:ro
+        - ./nginx/ssl/cloudflare:/etc/ssl/cloudflare:ro
+      depends_on:
+        - wordpress
